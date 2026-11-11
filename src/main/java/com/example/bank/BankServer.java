@@ -13,7 +13,6 @@ public class BankServer {
     private static BigDecimal balance = new BigDecimal("10000.00");
 
     public static void main(String[] args) throws IOException {
-        // ポート8080、すべてのIP（0.0.0.0）からの接続を待受
         HttpServer server = HttpServer.create(new InetSocketAddress("0.0.0.0", 8080), 0);
         server.createContext("/api/bank", new BankHandler());
         server.setExecutor(null);
@@ -28,7 +27,6 @@ public class BankServer {
     static class BankHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-            // 別端末（フロントエンド）からのCORS接続を許可
             exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
             exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
             exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
@@ -41,22 +39,20 @@ public class BankServer {
             String query = exchange.getRequestURI().getQuery();
             String responseJson = "{}";
 
-            // GETリクエスト（初期セッション確認）
             if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) {
                 if (query != null && query.contains("action=session")) {
                     responseJson = "{"
                         + "\"mode\":\"database\","
                         + "\"account\":{"
                         + "\"id\":\"acc-1017256\","
-                        + "\"bankCode\":\"003\","[cite: 1]
-                        + "\"branchCode\":\"024\","[cite: 1]
-                        + "\"accountNumber\":\"1017256\","[cite: 1]
+                        + "\"bankCode\":\"003\","
+                        + "\"branchCode\":\"024\","
+                        + "\"accountNumber\":\"1017256\","
                         + "\"balance\":" + balance
                         + "}"
                         + "}";
                 }
             } else if ("POST".equalsIgnoreCase(exchange.getRequestMethod())) {
-                // POSTリクエスト時の仮返答
                 responseJson = "{"
                     + "\"account\":{\"id\":\"acc-1017256\",\"bankCode\":\"003\",\"branchCode\":\"024\",\"accountNumber\":\"1017256\",\"balance\":" + balance + "},"
                     + "\"receipt\":{\"kind\":\"取引\",\"amount\":0,\"before\":" + balance + "}"
